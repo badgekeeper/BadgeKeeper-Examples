@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Sample for Badge Keeper service using Asp.Net MVC";
+}
+
+<br />
+<div class="row">
+    <button id="achievementsByProject" class="btn btn-primary col-xs-12 col-md-4">Get Project Achievements</button>
+    <button id="achievementsByProjectAndUser" class="btn btn-primary col-xs-12 col-md-4">Get User Achievements</button>
+    <button id="postAchievementsVariables" class="btn btn-primary col-xs-12 col-md-4">Post Achievements Variables</button>
+</div>
+<br />
+<div id="responseInfo" class="row">
+    <p id="status"></p>
+    <p id="response"></p>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/badgekeeper")
+<script>
+    var bk = new BadgeKeeper('/Home/GetProjectAchievements', '/Home/GetUserAchievements', '/Home/PostVariables');
+    var guid = newGuid();
+
+    var callback = function (data) {
+        if (data.isError === true) {
+            $("#response").text(data.errorMessage);
+        } else {
+            $("#response").text(JSON.stringify(data.result));
+        }
+        $("#status").text("Request completed!");
+    }
+
+    $(document).ready(function () {
+        $("#achievementsByProject").click(function () {
+            $("#status").text("Loading project achievements...");
+            $("#response").text("");
+            bk.get(null, callback, false);
+        });
+        $("#achievementsByProjectAndUser").click(function () {
+            $("#status").text("Loading user achievements...");
+            $("#response").text("");
+            bk.get(guid, callback, false);
+        });
+        $("#postAchievementsVariables").click(function () {
+            $("#status").text("Posting some variables...");
+            $("#response").text("");
+            var value = [ { "variable": 500 } ];
+            bk.post(guid, value, callback);
+        });
+    });
+
+    function newGuid() {
+        function n(n) {
+            var t = (Math.random().toString(16) + "000000000").substr(2, 8);
+            return n ? "-" + t.substr(0, 4) + "-" + t.substr(4, 4) : t;
+        }
+        return n() + n(!0) + n(!0) + n();
+    }
+</script>
+}
